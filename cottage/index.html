@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>冬季 Cottage 选房 · 2027/1/15–17</title>
+<style>
+  :root { --bg:#f6f4f0; --card:#fff; --ink:#1f2328; --mute:#6b7280; --line:#e7e3dc; --good:#15803d; --bad:#b91c1c; --accent:#c2410c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:24px 28px 8px; }
+  h1 { margin:0 0 6px; font-size:26px; }
+  .sub { color:var(--mute); font-size:14px; }
+  .picks { display:flex; gap:12px; flex-wrap:wrap; padding:12px 28px 4px; }
+  .pick { background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:10px 14px; font-size:14px; }
+  .pick b { color:var(--accent); }
+  .legend { padding:8px 28px 0; font-size:13px; color:var(--mute); }
+  .grid { display:grid; grid-template-columns:repeat(4, minmax(300px, 1fr)); gap:18px; padding:16px 28px 32px; }
+  @media (max-width:1300px) { .grid { grid-template-columns:repeat(2, minmax(300px,1fr)); } }
+  @media (max-width:700px) { .grid { grid-template-columns:1fr; } }
+  .region h2 { margin:0; font-size:19px; }
+  .region .meta { color:var(--mute); font-size:13px; margin:2px 0 12px; min-height:34px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+  .photos { display:grid; grid-template-columns:2fr 1fr; grid-template-rows:repeat(2, minmax(0, 1fr)); gap:2px; height:190px; overflow:hidden; position:relative; }
+  .photos img { width:100%; height:100%; min-height:0; object-fit:cover; display:block; background:#ddd; }
+  .photos img:first-child { grid-row:1 / 3; }
+  .photos.two { grid-template-columns:1fr 1fr; grid-template-rows:minmax(0, 1fr); }
+  .photos.two img:first-child { grid-row:auto; }
+  .rank { position:absolute; top:8px; left:8px; background:rgba(0,0,0,.72); color:#fff; font-weight:700; border-radius:20px; padding:3px 10px; font-size:13px; }
+  .body { padding:12px 14px 14px; }
+  .name { font-weight:700; font-size:16px; line-height:1.3; }
+  .row { display:flex; justify-content:space-between; align-items:baseline; margin-top:6px; }
+  .price { font-size:20px; font-weight:700; }
+  .pp { font-size:13px; color:var(--mute); }
+  .rating { font-size:13px; color:var(--mute); }
+  .beds { font-size:13px; color:var(--mute); margin-top:4px; }
+  .feats { display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 8px; }
+  .feat { font-size:12px; padding:3px 8px; border-radius:20px; border:1px solid var(--line); }
+  .feat.on { background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+  .feat.off { color:#9ca3af; text-decoration:line-through; }
+  ul { margin:4px 0 0; padding-left:0; list-style:none; font-size:13px; line-height:1.55; }
+  li.p::before { content:"✓ "; color:var(--good); font-weight:700; }
+  li.c::before { content:"✗ "; color:var(--bad); font-weight:700; }
+  .foot { display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:12px; color:var(--mute); }
+  .foot a { background:var(--ink); color:#fff; text-decoration:none; padding:6px 12px; border-radius:8px; font-size:13px; }
+  .bar { height:6px; background:#eee; border-radius:4px; margin-top:6px; overflow:hidden; }
+  .bar span { display:block; height:100%; background:linear-gradient(90deg,#22c55e,#eab308,#ef4444); }
+  footer { padding:0 28px 28px; font-size:12px; color:var(--mute); line-height:1.6; }
+</style>
+</head>
+<body>
+<header>
+  <h1>❄️ 冬季 Cottage 选房 · 4 人（两对情侣）</h1>
+  <div class="sub">2027 年 1 月 15–17 日（周五入住 · 周日退房，2 晚）· 从多伦多出发 · 预算：2 晚总价 ≤ $1,200 CAD（每人每晚 ≤ $150）· 价格为 Airbnb 显示的 2 晚总价（2026-10-25 查询）</div>
+</header>
+<div class="picks">
+  <div class="pick">🎯 最符合要求：<b>Huntsville · Modern 3BR Cottage</b>，$793</div>
+  <div class="pick">🌲 森林湖边 + 烧柴炉：<b>Haliburton · Lakefront A-Frame</b>，$1,109</div>
+  <div class="pick">🏘️ 逛小镇：<b>PEC · Lake St. Carriage House</b>，$941</div>
+  <div class="pick">💰 最省钱：<b>PEC · Wellington Cottage</b>，$619</div>
+</div>
+<div class="legend">绿色标签 = 房源有这项；划线灰色 = 没有或房源页没写。价格条：越长越接近 $1,200 预算上限。</div>
+<div class="grid" id="grid"></div>
+<footer>
+  说明：卧室、设施、优缺点来自房源页和房东描述；车程是估算；没有读住客评价正文。价格和空房会变，下单前在 Airbnb 上确认总价（含清洁费、服务费、税）和取消政策。冬天车道是否铲雪、需不需要四驱，请发消息问房东。
+</footer>
+<script>
+const IMG = '?im_w=720';
+const P = 'https://a0.muscache.com/im/pictures/';
+const DATES = '?adults=4&check_in=2027-01-15&check_out=2027-01-17';
+const regions = [
+  { name:'🌲 Huntsville（Muskoka）', meta:'车程约 2.5 小时 · Arrowhead 森林溜冰道、雪鞋步道、Huntsville 主街、Algonquin', items:[
+    { id:'1060515004466466511', name:'Modern 3BR Cottage', total:793, rating:'4.93（111 条）', beds:'king / queen / queen · 2.5 卫',
+      f:{trail:1,town:0,fire:1,games:1,spa:0}, cancel:'12/16 前免费取消',
+      pros:['房后就是森林，走路到 Echo Valley 步道','提供雪鞋','游戏室 + 桌游 + 壁炉'], cons:['室外有监控摄像头','2 号卧室早上透光'],
+      img:['prohost-api/Hosting-1060515004466466511/original/f124d7df-1db6-4790-b610-5c880b542728.jpeg','prohost-api/Hosting-1060515004466466511/original/60685ce8-8fcd-45d8-8499-daae809e9edb.jpeg'] },
+    { id:'46680996', name:'The Chalet House', total:832, rating:'4.9（305 条）', beds:'queen / 双人 / 双人+单人 · 2 卫',
+      f:{trail:0,town:0,fire:1,games:1,spa:1}, cancel:'1/10 前免费取消',
+      pros:['烧柴壁炉','6 人桑拿','大餐桌（房东写明适合游戏夜），露台看湖'], cons:['订房人须满 25 岁','两间是双人床，比 queen 小'],
+      img:['hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NDY2ODA5OTY%3D/original/20ea0103-00a9-4175-85e3-b5a8c0d6abf4.jpeg','hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NDY2ODA5OTY%3D/original/a2953df0-57c9-434d-88c0-cdd7c06933f2.jpeg'] },
+    { id:'1252967787606384498', name:'The Garden House', total:930, rating:'4.95（73 条）', beds:'queen / queen / queen · 2 卫',
+      f:{trail:0,town:1,fire:0,games:0,spa:1}, cancel:'12/16 前免费取消',
+      pros:['在 Huntsville 镇中心，走路逛街吃饭','热水浴缸','3 间都是 queen'], cons:['没有森林湖边的 cottage 感','这一区里最贵'],
+      img:['hosting/Hosting-1252967787606384498/original/ab2fc4e8-eaf7-4e38-924d-ac17bba0a3d7.jpeg','hosting/Hosting-1252967787606384498/original/9b997fbd-2008-417b-916b-7d9bbe05149d.jpeg'] },
+  ]},
+  { name:'🏔️ Haliburton Highlands', meta:'车程约 2.5–3 小时 · Haliburton Forest 狗拉雪橇、狼保护中心、Haliburton 小镇、Sir Sam\'s 滑雪场', items:[
+    { id:'49505393', name:'Lakefront A-Frame Cabin', total:1109, rating:'4.97（233 条）', beds:'king / queen / queen · 1.5 卫',
+      f:{trail:0,town:0,fire:1,games:0,spa:1}, cancel:'1/14 前免费取消',
+      pros:['湖景落地窗','烧柴炉 + 桑拿，房东送柴火','离 Haliburton 小镇 10 分钟'], cons:['快到预算上限','垃圾要自己带走','冬天下湖台阶会结冰'],
+      img:['miso/Hosting-49505393/original/3f5155e0-1aad-4ab9-b080-6a959c968647.jpeg','miso/Hosting-49505393/original/1ba8f13f-317e-4500-bd19-e6d98af741e4.jpeg','miso/Hosting-49505393/original/895de42c-fd8a-475e-a936-335559f02ec7.jpeg'] },
+    { id:'1049973656846531747', name:'Modern Cabin in the Woods + Sauna', total:1080, rating:'5.0（110 条）', beds:'queen / 2 张双人 · 1.5 卫',
+      f:{trail:1,town:0,fire:1,games:0,spa:1}, cancel:'12/16 前免费取消',
+      pros:['房后就有步道，能走雪鞋、滑越野雪','近 Sir Sam\'s 滑雪场','桑拿 + 烧柴炉，5.0 满分'], cons:['一间是两张双人床','没提桌游，要自己带'],
+      img:['hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTA0OTk3MzY1Njg0NjUzMTc0Nw%3D%3D/original/d3a38e11-1b81-49f5-9e01-708ddf2600b8.jpeg','hosting/Hosting-1049973656846531747/original/3c28a1b1-16c6-4f28-9bdc-25adfe4d6c16.jpeg','hosting/Hosting-1049973656846531747/original/2411e2ae-b122-456d-ab41-89f2ec0a5bed.jpeg'] },
+    { id:'572081887727680502', name:'Highland Bliss（Tory Hill）', total:1114, rating:'4.98（166 条）', beds:'king / king / 2 张 queen · 2 卫',
+      f:{trail:0,town:0,fire:1,games:1,spa:1}, cancel:'取消政策未确认',
+      pros:['床最大：两间 king','湖边 + 热水浴缸 + 烧柴炉','有桌游'], cons:['离 Haliburton 小镇约 25 分钟','下湖木楼梯又长又陡'],
+      img:['miso/Hosting-572081887727680502/original/ad711607-d09d-42ae-a7b5-23d2b364c855.jpeg','hosting/Hosting-572081887727680502/original/45cae8e0-20bc-4b58-a480-ba22e24518ec.jpeg','miso/Hosting-572081887727680502/original/35db934a-6c00-46da-9b2a-fcf2d754ffd2.jpeg'] },
+  ]},
+  { name:'⛷️ Blue Mountains / Collingwood', meta:'车程约 2 小时 · Blue Mountain Village、Collingwood、Thornbury、Scandinave Spa（以公寓为主）', items:[
+    { id:'49218921', name:'Cosy Chalet', total:1083, rating:'4.91（228 条）', beds:'king / queen+单人 · 2 卫（另有沙发床）',
+      f:{trail:1,town:1,fire:1,games:1,spa:0}, cancel:'12/16 前免费取消',
+      pros:['走路到 Blue Mountain Village','提供雪鞋，附近有步道','桌游 + 大长桌 + 燃气壁炉'], cons:['价格偏高','雪季周末 Village 人多'],
+      img:['miso/Hosting-49218921/original/1eb88815-84c5-4c30-9e13-325a5091bce3.jpeg','miso/Hosting-49218921/original/71b7fe30-535b-4557-bb1e-e0e98c0a9b9a.jpeg','miso/Hosting-49218921/original/044acb7f-30ea-4d3c-b33c-2d6f6292f172.jpeg'] },
+    { id:'1069652012561881721', name:'The Nottawa Nest', total:776, rating:'5.0（127 条）', beds:'queen / queen / 单人 · 1 卫',
+      f:{trail:0,town:1,fire:1,games:1,spa:0}, cancel:'1/14 前免费取消',
+      pros:['百年老房，5.0 满分','对面是咖啡店和书店，斜对面有酒吧餐厅','燃气壁炉 + 桌游'], cons:['是老房子的二楼公寓，不是独栋','只有 1 个卫生间'],
+      img:['miso/Hosting-1069652012561881721/original/37ba1af0-acb7-4b7f-b61f-369ea1719b9e.jpeg','miso/Hosting-1069652012561881721/original/5513d5a6-e632-426d-87a3-372dd6190ea3.jpeg','miso/Hosting-1069652012561881721/original/8159a12c-27bc-44e5-8ba3-34fae6c75c6e.jpeg'] },
+    { id:'1262344809171418071', name:'3 Bedroom Condo KQQ', total:777, rating:'4.89（73 条）', beds:'king / queen / queen · 2.5 卫',
+      f:{trail:0,town:0,fire:1,games:0,spa:0}, cancel:'12/16 前免费取消',
+      pros:['便宜，3 间都是大床','挑高客厅 + 燃气壁炉','6 人餐桌'], cons:['没写离 Village 多远','两段各 15 级楼梯','公寓感'],
+      img:['hosting/Hosting-1262344809171418071/original/fc5d9483-e052-41d6-9ced-e82fb2c997c2.jpeg','hosting/Hosting-1262344809171418071/original/61ad3192-7a57-4109-96e9-9e37b12701ca.jpeg','hosting/Hosting-1262344809171418071/original/4606e667-d4f1-403e-ac95-30704fac0eb7.jpeg'] },
+  ]},
+  { name:'🍷 Prince Edward County', meta:'车程约 2.5 小时 · Picton、Wellington、Bloomfield 小镇，酒庄，Sandbanks（冬天有些店关）', items:[
+    { id:'17604689', name:'Lake St. Carriage House', total:941, rating:'4.98（315 条）', beds:'king / queen / 2 张单人 · 1.5 卫',
+      f:{trail:0,town:1,fire:1,games:0,spa:1}, cancel:'12/16 前免费取消',
+      pros:['1860 年代马车房，在 Picton 镇中心','热水浴缸全年开放 + 燃气壁炉','评价最多，送 Sandbanks 通行证'], cons:['没提桌游，要自己带'],
+      img:['1080baa7-d931-4981-8399-08045b238409.jpg','0784eb08-941a-4cbb-a596-061ade6d99ba.jpg','13aae69b-4c70-455d-abfa-708177c11a63.jpg'] },
+    { id:'1314688626401278812', name:'The Place（Bloomfield）', total:883, rating:'5.0（115 条）', beds:'queen / queen / queen · 1.5 卫',
+      f:{trail:0,town:1,fire:1,games:0,spa:1}, cancel:'1/1 前免费取消',
+      pros:['Bloomfield 村子中心的百年老房','燃气壁炉 + 热水浴缸 + 黑胶唱机','离 Picton 和 Wellington 都 10 分钟'], cons:['Bloomfield 很小','没提桌游'],
+      img:['miso/Hosting-1314688626401278812/original/67b2f26c-e129-48cf-b930-1668ecf579fd.jpeg','hosting/Hosting-1314688626401278812/original/11bbb704-addf-47ac-8ba3-b18a858de066.jpeg','miso/Hosting-1314688626401278812/original/40eb94ce-b9d5-43af-bd1b-592359df0650.jpeg'] },
+    { id:'892238631846475897', name:'Wellington PEC Cottage', total:619, rating:'4.92（180 条）', beds:'queen+沙发床 / queen / 2 张单人 · 2 卫',
+      f:{trail:0,town:1,fire:1,games:1,spa:0}, cancel:'12/16 前免费取消',
+      pros:['最便宜：每人每晚约 $77','走路到 Wellington 主街、湖边和 Drake Devonshire','有桌游，2 个卫生间'], cons:['是电壁炉，不是真火','没有热水浴缸或桑拿'],
+      img:['hosting/Hosting-892238631846475897/original/168d98b1-93b7-4ed3-8645-526409790539.png','hosting/Hosting-892238631846475897/original/a6f3c7ae-d626-4a95-99a1-f5d2b746776d.png','hosting/Hosting-892238631846475897/original/535a417d-fd82-44fc-98da-d7a071549865.png'] },
+  ]},
+];
+const FEATS = [['trail','🥾 步道'],['town','🏘️ 走路逛镇'],['fire','🔥 壁炉'],['games','🎲 桌游'],['spa','♨️ 浴缸/桑拿']];
+const medal = ['🥇','🥈','🥉'];
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+document.getElementById('grid').innerHTML = regions.map(r => `
+  <section class="region">
+    <h2>${r.name}</h2><div class="meta">${esc(r.meta)}</div>
+    ${r.items.map((h, i) => `
+      <div class="card">
+        <div class="photos${h.img.length < 3 ? ' two' : ''}">
+          ${h.img.map(s => `<img loading="lazy" src="${P + s + IMG}" alt="${esc(h.name)}">`).join('')}
+          <div class="rank">${medal[i]} 第 ${i + 1} 名</div>
+        </div>
+        <div class="body">
+          <div class="name">${esc(h.name)}</div>
+          <div class="row"><span class="price">$${h.total.toLocaleString()}<span class="pp"> / 2 晚 · 每人每晚约 $${Math.round(h.total / 8)}</span></span></div>
+          <div class="bar"><span style="width:${Math.min(100, h.total / 12)}%"></span></div>
+          <div class="row"><span class="rating">⭐ ${h.rating}</span></div>
+          <div class="beds">🛏️ ${h.beds}</div>
+          <div class="feats">${FEATS.map(([k, l]) => `<span class="feat ${h.f[k] ? 'on' : 'off'}">${l}</span>`).join('')}</div>
+          <ul>${h.pros.map(p => `<li class="p">${esc(p)}</li>`).join('')}${h.cons.map(c => `<li class="c">${esc(c)}</li>`).join('')}</ul>
+          <div class="foot"><span>${h.cancel}</span><a href="https://www.airbnb.ca/rooms/${h.id}${DATES}" target="_blank">在 Airbnb 打开 →</a></div>
+        </div>
+      </div>`).join('')}
+  </section>`).join('');
+</script>
+</body>
+</html>
