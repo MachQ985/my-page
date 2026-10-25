@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>房源对比</title>
+<style>
+  :root { --bg:#f6f4f0; --card:#fff; --ink:#1f2328; --mute:#6b7280; --line:#e7e3dc; --good:#15803d; --bad:#b91c1c; --accent:#c2410c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:24px 28px 8px; }
+  h1 { margin:0 0 6px; font-size:26px; }
+  .sub { color:var(--mute); font-size:14px; line-height:1.6; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; padding:10px 28px 0; }
+  .stat { background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 14px; font-size:13px; color:var(--mute); }
+  .stat b { display:block; font-size:20px; color:var(--ink); }
+  .picks { display:flex; gap:12px; flex-wrap:wrap; padding:12px 28px 4px; }
+  .pick { background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:10px 14px; font-size:14px; }
+  .pick b { color:var(--accent); }
+  .legend { padding:8px 28px 0; font-size:13px; color:var(--mute); }
+  .grid { display:grid; grid-template-columns:repeat(var(--cols,4), minmax(300px, 1fr)); gap:18px; padding:16px 28px 32px; }
+  @media (max-width:1300px) { .grid { grid-template-columns:repeat(2, minmax(300px,1fr)); } }
+  @media (max-width:700px) { .grid { grid-template-columns:1fr; } }
+  .region h2 { margin:0; font-size:19px; }
+  .region .meta { color:var(--mute); font-size:13px; margin:2px 0 12px; min-height:34px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+  .photos { display:grid; grid-template-columns:2fr 1fr; grid-template-rows:repeat(2, minmax(0, 1fr)); gap:2px; height:190px; overflow:hidden; position:relative; background:#ddd; }
+  .photos img { width:100%; height:100%; min-height:0; object-fit:cover; display:block; background:#ddd; }
+  .photos img:first-child { grid-row:1 / 3; }
+  .photos.n2 { grid-template-columns:1fr 1fr; grid-template-rows:minmax(0, 1fr); }
+  .photos.n2 img:first-child, .photos.n1 img:first-child { grid-row:auto; }
+  .photos.n1 { grid-template-columns:1fr; grid-template-rows:minmax(0, 1fr); }
+  .site { position:absolute; top:8px; right:8px; background:#fff; color:var(--ink); font-weight:700; border-radius:20px; padding:3px 10px; font-size:12px; box-shadow:0 1px 3px #0003; }
+  .rank { position:absolute; top:8px; left:8px; background:rgba(0,0,0,.72); color:#fff; font-weight:700; border-radius:20px; padding:3px 10px; font-size:13px; }
+  .body { padding:12px 14px 14px; }
+  .name { font-weight:700; font-size:16px; line-height:1.3; }
+  .row { display:flex; justify-content:space-between; align-items:baseline; margin-top:6px; }
+  .price { font-size:20px; font-weight:700; }
+  .pp { font-size:13px; color:var(--mute); font-weight:400; }
+  .rating, .beds { font-size:13px; color:var(--mute); }
+  .beds { margin-top:4px; }
+  .feats { display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 8px; }
+  .feat { font-size:12px; padding:3px 8px; border-radius:20px; border:1px solid var(--line); }
+  .feat.on { background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+  .feat.off { color:#9ca3af; text-decoration:line-through; }
+  ul { margin:4px 0 0; padding-left:0; list-style:none; font-size:13px; line-height:1.55; }
+  li.p::before { content:"✓ "; color:var(--good); font-weight:700; }
+  li.c::before { content:"✗ "; color:var(--bad); font-weight:700; }
+  .foot { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:10px; font-size:12px; color:var(--mute); }
+  .foot a { background:var(--ink); color:#fff; text-decoration:none; padding:6px 12px; border-radius:8px; font-size:13px; white-space:nowrap; }
+  .bar { height:6px; background:#eee; border-radius:4px; margin-top:6px; overflow:hidden; }
+  .bar span { display:block; height:100%; background:linear-gradient(90deg,#22c55e,#eab308,#ef4444); }
+  footer { padding:0 28px 28px; font-size:12px; color:var(--mute); line-height:1.6; }
+</style>
+</head>
+<body>
+<header><h1 id="title"></h1><div class="sub" id="sub"></div></header>
+<div class="stats" id="stats"></div>
+<div class="picks" id="picks"></div>
+<div class="legend" id="legend"></div>
+<div class="grid" id="grid"></div>
+<footer id="footer"></footer>
+<script>
+// 数据由 scripts/build.js 注入；所有文字都经过转义再进 HTML。
+const DATA = {"title":"❄️ 冬季周末房源对比 · 4 人（两对情侣）","subtitle":"2027-01-15（周五）至 01-17（周日），2 晚 · 大多伦多出发 · 人均每晚 ≤ $150，2 晚整套 ≤ $1,200 CAD（含所有费用）· 平台：Airbnb · 只搜带热水浴缸、至少 2 间卧室的整套房源 · 2026-10-25 查询","currencySymbol":"$","nights":2,"people":4,"budgetTotal":1200,"stats":[{"label":"Airbnb 搜到房源","value":"98 个"},{"label":"在预算内","value":"68 个"},{"label":"看过详情","value":"17 个"},{"label":"对比区域","value":"4 个"},{"label":"预算内价格区间（2 晚）","value":"$350–$1,195"},{"label":"预算内中位价","value":"$941"}],"picks":[{"label":"🎯 最符合要求","name":"NOTL · Cellar House","price":"$999"},{"label":"💰 最省钱","name":"Collingwood · Greenview Retreat","price":"$758"},{"label":"🌲 森林步道 + 桌游","name":"Huntsville · Sally's Place","price":"$919"},{"label":"🕹️ 游戏室 + 逛小镇","name":"PEC · Central Picton","price":"$996"}],"features":[["town","🏘️ 走路逛镇"],["trail","🥾 步道"],["spa","♨️ 浴缸/桑拿"],["games","🎲 桌游/游戏"],["winter","🚗 冬季好开到"],["parking","🅿️ 2 个车位"]],"regions":[{"name":"🌲 Huntsville（Muskoka）","meta":"车程约 2.5 小时 · Huntsville 主街、Arrowhead 森林溜冰道和步道。镇中心带热水浴缸的整套房很少","items":[{"id":"25874107","site":"Airbnb","url":"https://www.airbnb.ca/rooms/25874107?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"Sally's Place","total":919,"rating":"4.99（294 条）· 超赞房东","beds":"king / queen / queen · 2.5 卫","f":{"town":0,"trail":1,"spa":1,"games":1,"winter":0,"parking":1},"cancel":"12/16 前免费取消","pros":["客厅有一箱桌游，后院还有地掷球和沙包游戏","带纱窗凉亭里的私人热水浴缸","走几步到 Trans Canada 步道；铺装车道，车位充足"],"cons":["离 Huntsville 镇中心几分钟车程，不能走路逛","页面没写车道冬天是否铲雪"],"img":["https://a0.muscache.com/im/pictures/3371c4c2-ee58-448a-94c2-d924453a5821.jpg?im_w=720","https://a0.muscache.com/im/pictures/8a891b77-db13-4b76-963c-ef05a9c014c7.jpg?im_w=720","https://a0.muscache.com/im/pictures/801042a7-163f-4627-9e64-81bb4a87cd48.jpg?im_w=720"]},{"id":"1252967787606384498","site":"Airbnb","url":"https://www.airbnb.ca/rooms/1252967787606384498?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"The Garden House","total":930,"rating":"4.95（73 条）","beds":"queen / queen / queen · 2 卫","f":{"town":1,"trail":0,"spa":1,"games":0,"winter":1,"parking":0},"cancel":"12/16 前免费取消","pros":["走 8 分钟到 Huntsville 主街，剧院、精酿酒厂都能走到","新的盐水热水浴缸 + 篝火","3 间都是 queen，2 个卫生间，大餐桌"],"cons":["只提到户外沙包游戏，没写室内桌游，要自己带","车道能停几辆车没写"],"img":["https://a0.muscache.com/im/pictures/hosting/Hosting-1252967787606384498/original/ab2fc4e8-eaf7-4e38-924d-ac17bba0a3d7.jpeg?im_w=720","https://a0.muscache.com/im/pictures/hosting/Hosting-1252967787606384498/original/9b997fbd-2008-417b-916b-7d9bbe05149d.jpeg?im_w=720","https://a0.muscache.com/im/pictures/hosting/Hosting-1252967787606384498/original/0def30fd-9452-416f-85b9-f4abb7912988.jpeg?im_w=720"]},{"id":"49884727","site":"Airbnb","url":"https://www.airbnb.ca/rooms/49884727?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"The Rock Lodge（Port Sydney）","total":1071,"rating":"4.99（328 条）· 超赞房东","beds":"queen / queen · 1 卫","f":{"town":0,"trail":0,"spa":1,"games":0,"winter":1,"parking":0},"cancel":"1/10 前免费取消","pros":["私人热水浴缸全年 24 小时开放","车道有铲雪公司负责","走 5 分钟到 Mary Lake 湖边，几步有便利店"],"cons":["只有 1 个卫生间","Port Sydney 是小村，餐厅要开车去 Huntsville","台阶要自己铲雪，柴火要自己买，室外有监控"],"img":["https://a0.muscache.com/im/pictures/1bcec9e2-339f-4ec9-856b-dbd5a9329c4f.jpg?im_w=720","https://a0.muscache.com/im/pictures/0a9ea619-4fa4-42ac-886a-11b3040c8090.jpg?im_w=720","https://a0.muscache.com/im/pictures/6f522c01-1271-4246-b801-6ece78168196.jpg?im_w=720"]}]},{"name":"⛷️ Blue Mountains / Collingwood","meta":"车程约 2 小时 · Blue Mountain Village、Collingwood 市中心、Georgian Trail。以度假村公寓为主，热水浴缸多为公用","items":[{"id":"1053457282639150349","site":"Airbnb","url":"https://www.airbnb.ca/rooms/1053457282639150349?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"The Greenview Retreat（Collingwood）","total":758,"rating":"4.81（47 条）· 超赞房东","beds":"king / queen · 2.5 卫","f":{"town":0,"trail":1,"spa":1,"games":0,"winter":0,"parking":1},"cancel":"1/14 前免费取消","pros":["全场最便宜：每人每晚约 $95","私人热水浴缸全年 24 小时开放","街尾就是 Georgian Trail（徒步/越野滑雪）；2 个车位 + 备用车位"],"cons":["开车 6 分钟到 Collingwood 市中心，不是走路距离","没写桌游；评价数较少"],"img":["https://a0.muscache.com/im/pictures/prohost-api/Hosting-1053457282639150349/original/464bd97f-e5f3-4229-8621-1069d5a5ab51.jpeg?im_w=720","https://a0.muscache.com/im/pictures/prohost-api/Hosting-1053457282639150349/original/1c38b86c-96f7-489b-b3c8-c2772105ac36.jpeg?im_w=720","https://a0.muscache.com/im/pictures/prohost-api/Hosting-1053457282639150349/original/e265adaa-25c9-4094-b246-2dab97e72481.jpeg?im_w=720"]},{"id":"757236265012609704","site":"Airbnb","url":"https://www.airbnb.ca/rooms/757236265012609704?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"Raccoon Ridge","total":1105,"rating":"4.84（172 条）· 超赞房东","beds":"queen / 2 张 queen · 2 卫","f":{"town":1,"trail":1,"spa":1,"games":0,"winter":0,"parking":0},"cancel":"12/16 前免费取消","pros":["住客说走 10 分钟到 Blue Mountain Village，也有免费班车","附近就是滑雪道和徒步步道","燃气壁炉 + 大餐桌，2 个卫生间"],"cons":["热水浴缸是度假村公用的，不是私人","没写桌游；车位数没写"],"img":["https://a0.muscache.com/im/pictures/hosting/Hosting-757236265012609704/original/b53d69e0-865f-4522-8c89-b872fddbe1d8.jpeg?im_w=720","https://a0.muscache.com/im/pictures/hosting/Hosting-757236265012609704/original/ef17256d-1515-4efc-a5c5-d7c3b08d4621.jpeg?im_w=720","https://a0.muscache.com/im/pictures/hosting/Hosting-757236265012609704/original/6f5a63fb-4159-4a9a-ae28-ba397d3601cf.jpeg?im_w=720"]},{"id":"49218921","site":"Airbnb","url":"https://www.airbnb.ca/rooms/49218921?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"Cosy Chalet","total":1083,"rating":"4.91（228 条）","beds":"king / queen+单人 · 2 卫（另有沙发床）","f":{"town":1,"trail":1,"spa":0,"games":1,"winter":0,"parking":0},"cancel":"12/16 前免费取消","pros":["走路到 Blue Mountain Village","提供雪鞋，附近有雪鞋步道","桌游 + 大长桌 + 燃气壁炉"],"cons":["没有热水浴缸（户外泳池冬天不开）","雪季周末 Village 人多"],"img":["https://a0.muscache.com/im/pictures/miso/Hosting-49218921/original/1eb88815-84c5-4c30-9e13-325a5091bce3.jpeg?im_w=720","https://a0.muscache.com/im/pictures/miso/Hosting-49218921/original/71b7fe30-535b-4557-bb1e-e0e98c0a9b9a.jpeg?im_w=720","https://a0.muscache.com/im/pictures/miso/Hosting-49218921/original/044acb7f-30ea-4d3c-b33c-2d6f6292f172.jpeg?im_w=720"]}]},{"name":"🍷 Prince Edward County","meta":"车程约 2.5 小时 · Picton、Wellington 小镇，酒庄。房源多、性价比高；冬天部分店铺关门","items":[{"id":"1269646114601084136","site":"Airbnb","url":"https://www.airbnb.ca/rooms/1269646114601084136?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"Magnolia House（Central Picton）","total":996,"rating":"4.88（80 条）","beds":"queen / 双人 / queen · 2 卫","f":{"town":1,"trail":0,"spa":1,"games":1,"winter":0,"parking":0},"cancel":"1/10 前免费取消","pros":["游戏室：街机、飞镖、桌上足球、牌桌","私人热水浴缸 + 篝火","住客说走路能逛遍 Picton 镇"],"cons":["车道只有 1 个车位，第二辆车要停街上","一间是双人床，比 queen 小"],"img":["https://a0.muscache.com/im/pictures/miso/Hosting-1269646114601084136/original/1c1df665-9a7d-4ca7-b57f-21d2372e2fe5.jpeg?im_w=720","https://a0.muscache.com/im/pictures/miso/Hosting-1269646114601084136/original/43e3128a-aaaa-4e6b-a0f4-4a02ea239520.jpeg?im_w=720","https://a0.muscache.com/im/pictures/miso/Hosting-1269646114601084136/original/b7566a24-1f96-44ba-80bf-56b836ee0450.jpeg?im_w=720"]},{"id":"912245019104201848","site":"Airbnb","url":"https://www.airbnb.ca/rooms/912245019104201848?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"County Gem","total":1192,"rating":"4.96（151 条）","beds":"king / king / queen · 2 卫","f":{"town":0,"trail":0,"spa":1,"games":1,"winter":0,"parking":1},"cancel":"12/16 前免费取消","pros":["烧柴壁炉（送柴）+ 热水浴缸 + 800 尺大露台","桌游、拼图、Nintendo Switch","能停 10 辆车，两间 king 卧室"],"cons":["在 Muscote Bay 上方的森林里，要开车去小镇","接近预算上限；邻居的狗可能会来串门"],"img":["https://a0.muscache.com/im/pictures/miso/Hosting-912245019104201848/original/2bba4668-e1d1-4cf3-8a68-6cd23a3e254d.jpeg?im_w=720","https://a0.muscache.com/im/pictures/miso/Hosting-912245019104201848/original/2821ac06-3e99-4524-bd41-b85ebe68533a.jpeg?im_w=720","https://a0.muscache.com/im/pictures/miso/Hosting-912245019104201848/original/9b649b9f-da77-45d6-8872-ef3697f43fb7.jpeg?im_w=720"]},{"id":"669779162764753762","site":"Airbnb","url":"https://www.airbnb.ca/rooms/669779162764753762?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"John Alvin's（Wellington）","total":1029,"rating":"4.97（71 条）· 超赞房东","beds":"king / king / queen / 2 单人 · 2.5 卫","f":{"town":1,"trail":0,"spa":1,"games":0,"winter":0,"parking":0},"cancel":"12/16 前免费取消","pros":["走路到 Wellington 主街和湖滩","私人热水浴缸全年 24 小时 + 篝火","4 间卧室、2.5 卫，最宽敞"],"cons":["没写桌游","车道能停几辆车没写"],"img":["https://a0.muscache.com/im/pictures/hosting/Hosting-669779162764753762/original/ecffeec1-c4de-45e0-b872-9a71750b1acf.jpeg?im_w=720","https://a0.muscache.com/im/pictures/hosting/Hosting-669779162764753762/original/de57edee-8477-450c-8aa5-6012d421a3f5.jpeg?im_w=720","https://a0.muscache.com/im/pictures/hosting/Hosting-669779162764753762/original/a2aa5f0f-39a6-498e-b1c4-6842fa9eb327.jpeg?im_w=720"]}]},{"name":"🍇 Niagara-on-the-Lake","meta":"车程约 1.5 小时 · 老城 Queen St、Niagara River Parkway 步道、酒庄。离多伦多最近","items":[{"id":"861720665068875003","site":"Airbnb","url":"https://www.airbnb.ca/rooms/861720665068875003?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"Cellar House","total":999,"rating":"4.87（55 条）· 超赞房东","beds":"queen / queen / queen · 1.5 卫","f":{"town":1,"trail":0,"spa":1,"games":1,"winter":0,"parking":1},"cancel":"12/16 前免费取消","pros":["在老城中心，住客说走路进城吃饭喝酒很方便","街机 + 桌游 + 超级任天堂","私人热水浴缸，车道能停 6 辆车"],"cons":["有住客说热水浴缸需要保养","只有 1.5 个卫生间"],"img":["https://a0.muscache.com/im/pictures/miso/Hosting-861720665068875003/original/097a7918-14bc-44fe-b101-6aae42f37eba.jpeg?im_w=720","https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6ODYxNzIwNjY1MDY4ODc1MDAz/original/7e91fad3-755b-4d91-bd15-36816dd76dfd.jpeg?im_w=720","https://a0.muscache.com/im/pictures/miso/Hosting-861720665068875003/original/f71569b1-ab37-4fbd-b6bc-5ad66bb26298.jpeg?im_w=720"]},{"id":"1163388429090485161","site":"Airbnb","url":"https://www.airbnb.ca/rooms/1163388429090485161?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"Walking Distance to Old Town","total":894,"rating":"4.92（207 条）· 超赞房东","beds":"queen / queen（+沙发床）· 1 卫","f":{"town":1,"trail":0,"spa":1,"games":0,"winter":0,"parking":1},"cancel":"1/10 前免费取消","pros":["走 10 分钟到老城主街和湖边","私人热水浴缸（10 月到次年 5 月开放）","车道能停 3 辆车，价格较低"],"cons":["只有 1 个卫生间","没写桌游"],"img":["https://a0.muscache.com/im/pictures/hosting/Hosting-1163388429090485161/original/9386083d-e193-4d4e-b660-e127bc537acf.jpeg?im_w=720","https://a0.muscache.com/im/pictures/miso/Hosting-1163388429090485161/original/50815a70-72b2-425b-b116-d1683f5662c9.jpeg?im_w=720","https://a0.muscache.com/im/pictures/miso/Hosting-1163388429090485161/original/8369b0d9-34dd-4915-8641-c26a1c066818.jpeg?im_w=720"]},{"id":"51065915","site":"Airbnb","url":"https://www.airbnb.ca/rooms/51065915?adults=4&check_in=2027-01-15&check_out=2027-01-17","name":"Parkway House（Niagara River Parkway）","total":1117,"rating":"4.97（115 条）· 超赞房东","beds":"queen / queen · 1 卫","f":{"town":0,"trail":1,"spa":1,"games":1,"winter":0,"parking":0},"cancel":"1/1 前免费取消","pros":["就在 Niagara River Parkway 步道边，房东借雪鞋和自行车","桌游 + 壁炉 + 大餐桌","私人热水浴缸全年 24 小时"],"cons":["房东住在同一栋房子的另一侧","只有 1 个卫生间；页面没写能否走路进老城"],"img":["https://a0.muscache.com/im/pictures/miso/Hosting-51065915/original/5c2e6f59-37fd-446a-9d37-70f2da56c35e.jpeg?im_w=720","https://a0.muscache.com/im/pictures/miso/Hosting-51065915/original/995e0840-b121-480f-8871-f722312fa2e5.jpeg?im_w=720","https://a0.muscache.com/im/pictures/miso/Hosting-51065915/original/2723388a-d9bb-4e0e-a779-1d29f61cf04b.jpeg?im_w=720"]}]}],"footer":"说明：所有房源都在 Airbnb 上用“热水浴缸 + 至少 2 间卧室 + 整套房子 + 每晚 ≤ $600”条件搜索；卧室、设施、优缺点来自房源页、房东描述和住客评价摘录；绿色标签只在页面明确写了才算，没写的按“没有”处理（如冬季车道铲雪、车位数）。车程为估算。价格和空房会变，日期是 12 月到 1 月中的一个代表周末，换周末价格会不同；下单前请在 Airbnb 上确认总价、取消政策，并向房东确认冬季车道和停车。"};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => DATA.currencySymbol + Math.round(n).toLocaleString();
+const medal = ['🥇','🥈','🥉'];
+document.title = DATA.title;
+document.getElementById('title').textContent = DATA.title;
+document.getElementById('sub').textContent = DATA.subtitle;
+document.getElementById('stats').innerHTML = (DATA.stats || []).map(s => `<div class="stat"><b>${esc(s.value)}</b>${esc(s.label)}</div>`).join('');
+document.getElementById('picks').innerHTML = (DATA.picks || []).map(p => `<div class="pick">${esc(p.label)}：<b>${esc(p.name)}</b>，${esc(p.price)}</div>`).join('');
+document.getElementById('legend').textContent = '绿色标签 = 房源有这项；划线灰色 = 没有或房源页没写。价格条：越长越接近预算上限 ' + money(DATA.budgetTotal) + '。';
+document.getElementById('footer').textContent = DATA.footer;
+const grid = document.getElementById('grid');
+grid.style.setProperty('--cols', Math.min(4, DATA.regions.length));
+grid.innerHTML = DATA.regions.map(r => `
+  <section class="region">
+    <h2>${esc(r.name)}</h2><div class="meta">${esc(r.meta)}</div>
+    ${r.items.map((h, i) => `
+      <div class="card">
+        <div class="photos n${Math.min(3, h.img.length)}">
+          ${h.img.slice(0, 3).map(src => `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(src)}" alt="${esc(h.name)}">`).join('')}
+          <div class="rank">${medal[i] || '🏅'} 第 ${i + 1} 名</div>
+          <div class="site">${esc(h.site)}</div>
+        </div>
+        <div class="body">
+          <div class="name">${esc(h.name)}</div>
+          <div class="row"><span class="price">${money(h.total)}<span class="pp"> / ${DATA.nights} 晚 · 每人每晚约 ${money(h.total / DATA.nights / DATA.people)}</span></span></div>
+          <div class="bar"><span style="width:${Math.min(100, h.total / DATA.budgetTotal * 100)}%"></span></div>
+          <div class="row"><span class="rating">⭐ ${esc(h.rating)}</span></div>
+          <div class="beds">🛏️ ${esc(h.beds)}</div>
+          <div class="feats">${DATA.features.map(([k, l]) => `<span class="feat ${h.f[k] ? 'on' : 'off'}">${esc(l)}</span>`).join('')}</div>
+          <ul>${h.pros.map(p => `<li class="p">${esc(p)}</li>`).join('')}${h.cons.map(c => `<li class="c">${esc(c)}</li>`).join('')}</ul>
+          <div class="foot"><span>${esc(h.cancel)}</span><a href="${esc(h.url)}" target="_blank" rel="noopener">在 ${esc(h.site)} 打开 →</a></div>
+        </div>
+      </div>`).join('')}
+  </section>`).join('');
+</script>
+</body>
+</html>
